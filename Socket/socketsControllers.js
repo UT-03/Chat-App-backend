@@ -3,7 +3,6 @@ const ActiveUser = require("../models/ActiveUser");
 
 const addActiveUser = async (userId, socketId) => {
     try {
-        console.log(userId, socketId, 'connected');
         // Checking is user already exists
         let existingUser = await ActiveUser.findOne({ userId: userId });
 
@@ -25,9 +24,8 @@ const addActiveUser = async (userId, socketId) => {
     }
 };
 
-const removeActiveUser = async (userId, socketId) => {
+const removeActiveUserByUserId = async (userId) => {
     try {
-        console.log(userId, socketId, 'disconnected');
         // Checking if there is any existing active user with the given userId
         let existingUser = await ActiveUser.findOne({ userId: userId });
 
@@ -41,6 +39,22 @@ const removeActiveUser = async (userId, socketId) => {
         console.log(err);
     }
 };
+
+const removeActiveUserBySocketId = async (socketId) => {
+    try {
+        // Checking if there is any existing active user with the given socketId
+        let existingUser = await ActiveUser.findOne({ socketId: socketId });
+
+        // If user does not exist => simply return the function
+        if (!existingUser)
+            return;
+
+        // Else => remove active User
+        await existingUser.remove();
+    } catch (err) {
+        console.log(err);
+    }
+}
 
 const sendMessage = async (from, to, text, socket) => {
     const activeUser = await ActiveUser.findOne({ userId: to });
@@ -57,6 +71,7 @@ const sendMessage = async (from, to, text, socket) => {
 
 module.exports = {
     addActiveUser,
-    removeActiveUser,
+    removeActiveUserByUserId,
+    removeActiveUserBySocketId,
     sendMessage
 }

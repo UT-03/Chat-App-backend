@@ -1,7 +1,7 @@
 const socket = require('socket.io');
 const ActiveUser = require('../models/ActiveUser');
 
-const { addActiveUser, removeActiveUser, sendMessage } = require('./socketsControllers');
+const { addActiveUser, removeActiveUserByUserId, sendMessage, removeActiveUserBySocketId } = require('./socketsControllers');
 
 const addSockets = (server) => {
     const io = socket(server, {
@@ -12,13 +12,12 @@ const addSockets = (server) => {
     });
 
     io.on("connection", (socket) => {
-        console.log(socket.id + ' connected');
         socket.on("user active", ({ userId }) => {
             addActiveUser(userId, socket.id);
         });
 
         socket.on("user inactive", ({ userId }) => {
-            removeActiveUser(userId, socket.id);
+            removeActiveUserByUserId(userId, socket.id);
         });
 
         socket.on("send-msg", async ({ from, to, text }) => {
@@ -35,8 +34,8 @@ const addSockets = (server) => {
             }
         })
 
-        socket.on('disconnect', (reason) => {
-            console.log(socket.id + ' disconnected');
+        socket.on('disconnect', () => {
+            removeActiveUserBySocketId(socket.id);
         })
     });
 }
