@@ -6,7 +6,7 @@ const { addActiveUser, removeActiveUserByUserId, sendMessage, removeActiveUserBy
 const addSockets = (server) => {
     const io = socket(server, {
         cors: {
-            origin: "http://localhost:3000",
+            origin: process.env.FRONTEND_URL,
             credentials: true,
         },
     });
